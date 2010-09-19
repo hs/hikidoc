@@ -1,320 +1,605 @@
-!Paragraphs
+!Get going.
+!!paragraph and breakline
 
-Consecutive lines are concatenated into a single paragraph.
-
-Blank lines (ones with only a carriage return or with only spaces and tabs) mark the end of a paragraph.
-
-*Example statement
-
- For example,
- if I write like this, these lines
- will be formatted as one paragraph.
-
-*Example output
-
+* Usually consecutive lines are concatenated into a single paragraph.
+* Breakline tag(<br>) is inserted if lines are start with space charactor.
+* Blank lines (ones with only a carriage return or with only spaces and tabs) mark the end of a paragraph.
+[center]
+||!description||!output
+||(((||(((
+||(((||(((
+||(((||(((
+<<<a
 For example,
 if I write like this, these lines
 will be formatted as one paragraph.
+>>>
+)))
+For example,
+if I write like this, these lines
+will be formatted as one paragraph.
+)))
+<<<a
+Breakline tag(<br>) is inserted
+ if lines are start with space charactor
+ like this.
+>>>
+)))
+Breakline tag(<br>) is inserted
+ if lines are start with space charactor
+ like this.
+)))
+<<<a
+Blank lines (ones with only a carriage return or with only spaces and tabs)
+
+mark the end of a paragraph.
+>>>
+)))
+Blank lines (ones with only a carriage return or with only spaces and tabs)
+
+mark the end of a paragraph.
+)))
+
+!!class and title attributes
+
+Almost every notations below accepts an optional class/title attribute syntax which consists of a text between '[' and ']'.
+* A text start with alphabetical character is interpreted as a class attributes.
+* A text enclosed in double quotation marks is interpreted as a title attributes.
+* You can set both attributes separated by commas.
+
+[center]
+||(((||(((
+||(((||(((
+<<<a
+[bgOrange,"title"]
+You can use class attributes for CSS.
+ And title may be displayed as a "tool tip" with some visual browsers when you place the mouse cursor here.
+>>>
+)))
+[bgOrange,"title"]
+You can use class attributes for CSS.
+ And title may be displayed as a "tool tip" with some visual browsers when you place the mouse cursor here.
+)))
+<<<a
+![foo,"title"] Heading
+>>>
+)))
+![foo,"title"] Heading
+)))
+
+! Headings
+
+* Lines with exclamation marks at the beginning become headings.
+* You can use up to six exclamation marks; they will be converted to <h1> to <h6> tags.
+
+[center]
+||!description||!output
+||(((||(((
+<<<a
+! Heading1
+!! Heading2
+!!! Heading3
+!!!! Heading4
+!!!!! Heading5
+!!!!!! Heading6
+>>>
+)))
+![notoc] Heading1
+!![notoc] Heading2
+!!![notoc] Heading3
+!!!![notoc] Heading4
+!!!!![notoc] Heading5
+// Please overlook :-)
+!!!!![notoc]! Heading6
+)))
 
 !Links
+!!URLs
+* An URL enclosed in double blackets is interpreted as a hyperlink to that page.
+* A piped('|') URL is renamed by preceding texts.
+* If URL ends one of 'jpg,jpeg,pnf,gif', it becomes an img-tag link.
+* URL-ish words in paragraph automattically comverted to hyperlink.
 
-!!WikiNames
+[center]
+||!description||!output
+||(((||(((
+||(((||(((
+||(((||(((
+||(((||(((
+<<<a
+[[http://www.hikiwiki.org/en/]]
+>>>
+)))
+[[http://www.hikiwiki.org/en/]]
+)))
+<<<a
+[[Hiki|http://www.hikiwiki.org/en/]]
+>>>
+)))
+[[Hiki|http://www.hikiwiki.org/en/]]
+)))
+<<<a
+[[Clover|http://jp.rubyist.net/theme/clover/clover_h1.png]]
+>>>
+)))
+[[Clover|http://jp.rubyist.net/theme/clover/clover_h1.png]]
+)))
+<<<a
+http://www.hikiwiki.org/en/
+>>>
+)))
+http://www.hikiwiki.org/en/
+)))
 
-WikiNames are comprised of two or more words put together; each word begins with an uppercase letter, and is followed by at least one lowercase letter or number.
+!!WikiName
+WikiNames are comprised of two or more words put together; each word begins with an uppercase letter
+, and is followed by at least one lowercase letter or number.
 
 Words in which this condition is met become a WikiName, and a link is automatically attached.
 
-*Example statement
+[center]
+||description||output||note
+||(((||(((||(((
+ WikiName
+ HogeRule1
+ NOTWIKINAME
+ WikiNAME
+ fooWikiName
+)))
+ WikiName
+ HogeRule1
+ NOTWIKINAME
+ WikiNAME
+ fooWikiName
+)))
+ WikiName
+ WikiName
+ not WikiName
+ not WikiName
+ not WikiName
+)))
 
- WikiName     - WikiName
- HogeRule1    - WikiName
- NOTWIKINAME  - All of the letters are uppercase, so this is not a WikiName
- WikiNAME     - All of the letters in NAME are uppercase, so this is not a WikiName
- fooWikiName  - This begins with "foo", which is in all lowercase, so this is not a WikiName
+!Comments
+Lines beginning with two slash mark('//') is interpreted as comment and will not display.
 
-*Example output
+[center]
+||!description||!output
+||{!// Comment !}||(((
+// Comment
+)))
 
-**WikiName     - WikiName
-**HogeRule1    - WikiName
-**NOTWIKINAME  - All of the letters are uppercase, so this is not a WikiName
-**WikiNAME     - All of the letters in NAME are uppercase, so this is not a WikiName
-**fooWikiName  - This begins with "foo", which is in all lowercase, so this is not a WikiName
-
-You can disable an auto WikiName link by putting ''^'' to the WikiName.
-
-*Example statement
-
- WikiName     - WikiName
- ^WikiName    - Disable WikiName link
-
-*Example output
-
-**WikiName     - WikiName
-**^WikiName    - Disable WikiName link
-
-!!Linking to other Wiki pages
-
-If a page name is surrounded with two pairs of brackets, it becomes a link to that page.
-
-*Example statement
-
- For example, if you write [[TextFormattingRules]], it becomes a link to that page.
-
-*Example output
-
-For example, if you write [[TextFormattingRules]], it becomes a link to that page.
-
-!!Linking to an arbitrary URL
-
-If a phrase and URL, separated by a vertical line, are surrounded with two pairs of brackets, it becomes a link to an arbitrary URL.
-
-*Example statement
-
- Links like [[Yahoo!|http://www.yahoo.com/]] are also possible.
-
-*Example output
-
-Links like [[Yahoo!|http://www.yahoo.com/]] are also possible.
-
-Text in a paragraph that looks like a URL will automatically become a link.
-
-*Example statement
-
- Hiki's home page is http://hikiwiki.org/en/ (English).
-
-*Example output
-
-Hiki's home page is http://hikiwiki.org/en/ (English).
-
-In this case, if the URL ends with jpg., .jpeg, .png, or .gif, the image is displayed on the page.
-
-*Example statement
-
- http://jp.rubyist.net/theme/clover/clover_h1.png
-
-*Example output
-
-http://jp.rubyist.net/theme/clover/clover_h1.png
-
-!Preformatted text
-
-Lines beginning with spaces or tabs will be treated as preformatted text.
-
-*Example output
-
- require 'cgi'
- 
- cgi = CGI::new
- cgi.header
- 
- puts <<EOS
- <html>
-   <head>
-     <title>Hello!</title>
-   </head>
-   <body>
-   <p>Hello!</p>
-   </body>
- </html>
- EOS
-
-!Text decoration
-
-Text surrounded by sets of two single quotes ('') is emphasised.
-
-Text surrounded by sets of three single quotes (''') is strongly emphasised.
-
-Text surrounded by sets of double equal signs (===) is struck out.
-
-Text surrounded by sets of double backquotes (``) is inline literal.
-
-*Example statement
-
- If you write like this, it becomes ''emphasised''.
- And if you write like this, it becomes '''strongly emphasised'''.
- ==This is dull, but== And struck-out text is supported, too!
- If you write like this, it becomes ``monospaced text``.
-
-*Example output
-
-If you write like this, it becomes ''emphasised''.
-And if you write like this, it becomes '''strongly emphasised'''.
-==This is dull, but== And struck-out text is supported, too!
-If you write like this, it becomes ``monospaced text``.
-
-!Headings
-
-Lines with exclamation marks at the beginning become headings.
-
-One can use up to six exclamation marks; they will be converted to <h1> to <h6> tags.
-
-*Example statement
-
- !Heading1
- !!Heading2
- !!!Heading3
- !!!!Heading4
- !!!!!Heading5
-
-*Example output
-
-!Heading1
-!!Heading2
-!!!Heading3
-!!!!Heading4
-!!!!!Heading5
-
-!Horizontal lines
+!Horizontal rule
 
 Four hyphens at the beginning of the line (----) become a horizontal rule.
 
-*Example statement
-
- A B C D E
- ----
- F G H I J
-
-*Example output
-
-A B C D E
+[center]
+||!description||!output
+||{!----!}||(((
 ----
-F G H I J
+)))
 
 !Lists
+* Lines beginning with asterisks('*') become list items.
+* Lines beginning with sharps('#') become ordered lists.
+* Consecutive marks makes compliant nested lists.
 
-Lines beginning with asterisks become list items.
+[center]
+||!description||!output
+||(((||(((
+||(((||(((
+<<<a
+* level 1
+** level 2
+*** level 3
+**** level 4
+***** level 5
+****** go over
+* * Insert a space if you want to display asterisks at the top of the line.
+>>>
+)))
+* level 1
+** level 2
+*** level 3
+**** level 4
+***** level 5
+****** go over
+* * Insert a space if you want to display asterisks at the top of the line.
+)))
+<<<a
+# item 1-1
+## item 2-1
+## item 2-2
+# item 1-2
+>>>
+)))
+# item 1-1
+## item 2-1
+## item 2-2
+# item 1-2
+)))
 
-It is possible to use up to three asterisks; it is also possible to create nested lists.
+!Definition Lists
+* Lines beginning with semicolons(';') becomes definition title.
+* A text after the ';:' in title line becomes definition data.
+* Lines beginning with colons(':') becomes definition data.
 
-Lines beginning with a # become numbered lists.
+[center]
+||!description||!output
+||(((||(((
+||(((||(((
+||(((||(((
+<<<a
+;title;:data
+ breakline
+>>>
+)))
+;title;:data
+ breakline
+)))
+<<<a
+;title only
+>>>
+)))
+;title only
+)))
+<<<a
+:data only
+>>>
+)))
+:data only
+)))
 
-*Example statement
-
- *Item 1
- **Item 1.1
- **Item 1.2
- ***Item 1.2.1
- ***Item 1.2.2
- ***Item 1.2.3
- **Item 1.3
- **Item 1.4
- *Item 2
-
- #Item 1
- #Item 2
- ##Item 2.1
- ##Item 2.2
- ##Item 2.3
- #Item 3
- ##Item 3.1
- ###Item 3.1.1
- ###Item 3.1.2
-
-*Example output
-
-*Item 1
-**Item 1.1
-**Item 1.2
-***Item 1.2.1
-***Item 1.2.2
-***Item 1.2.3
-**Item 1.3
-**Item 1.4
-*Item 2
-
-#Item 1
-#Item 2
-##Item 2.1
-##Item 2.2
-##Item 2.3
-#Item 3
-##Item 3.1
-###Item 3.1.1
-###Item 3.1.2
-
-!Quotations
-
-Lines beginning with two double quotes become quotations.
-
-*Example statement
-
- ""This is a quotation.
- ""This is another quote.
- ""This is a continued quote.  When there are consecutive quotations,
- ""they are displayed as one quote,
- ""like this.
-
-*Example output
-
-""This is a quotation.
-""This is another quote.
-""This is a continued quote.  When there are consecutive quotations,
-""they are displayed as one quote,
-""like this.
-
-!Definitions
-
-Lines beginning with a colon and have a phrase and explanation separated by another colon will become a definition.
-
-*Example statement
-
- :ringo:apple
- :gorira:gorilla
- :rakuda:camel
-
-*Example output
-
-:ringo:apple
-:gorira:gorilla
-:rakuda:camel
-
-! Tables
-
-Tables begin with two vertical bars.
+!Tables
+Tables begin with two pipes('||').
 
 Leading `!' in a cell means that it is a heading cell.
 
-To concatenate columns or rows, put `>'(columns) or `^'(rows) at head of
-the cell.
+To concatenate columns or rows, put `>'(columns) or `^'(rows) at head of the cell.
 
-* Example statement
+[center]
+||!description||(((
+||!output||(((
+<<<a
+ ||!line heading¡Àrow heading||!row-A||!row-B||!row-C||!>row-D-E
+ ||!line-1||A1||B1||^C1-C2||D1||E1
+ ||!line-2||A2||B2||^>D2-E2-D3-E3
+ ||!line-3||>>A3-C3
+>>>
+)))
+||!line heading¡Àrow heading||!row-A||!row-B||!row-C||!>row-D-E
+||!line-1||A1||B1||^C1-C2||D1||E1
+||!line-2||A2||B2||^>D2-E2-D3-E3
+||!line-3||>>A3-C3
+)))
 
- ||!row heading \ column heading||!column A||!column B||!column C||!>column D-E (horizontal concatenation)
- ||!row 1||A1||B1||^C1-C2 (vertical concatenation)||D1||E1
- ||!row 2||A2||B2||^>D2-E2-D3-E3 (vertical and horizontal concatenation)
- ||!row 3||>>A3-C3 (horizontal concatenation)
+!Inline elements
 
-* Example output
+A text enclosed with curly brackets + some marks are interpreted to corresponding tags.
 
-||!row heading \ column heading||!column A||!column B||!column C||!>column D-E (horizontal concatenation)
-||!row 1||A1||B1||^C1-C2 (vertical concatenation)||D1||E1
-||!row 2||A2||B2||^>D2-E2-D3-E3 (vertical and horizontal concatenation)
-||!row 3||>>A3-C3 (horizontal concatenation)
+!!Text decoration
 
-! Comments
+[center]
+||!||!mark||!description||!output||!tag
+||colored||!~color:||{''{~red:''}sample{''~}''}||{~red:sample~}||<font color="color">
+||emphasis||!'||{''{'''}sample{'''}''}||{'sample'}||<em>
+||strong||!two '||{''{''''}sample{'''{!'}!}''}||{''sample''}||<strong>
+||underline||! _||{''{_''}sample{''_}''}||{_sample_}||<u>
+||itaric||!/||{''{/''}sample{''/}''}||{/sample/}||<i>
+||delete||!=||{''{=''}sample{''=}''}||{=sample=}||<del>
+||big||!+||sample{''{+''}sample{''+}''}sample||sample{+sample+}sample||<big>
+||small||!-||sample{''{-''}sample{''-}''}sample||sample{-sample-}sample||<small>
+||superscript||!two ^||sample{''{^^''}sample{''^^}''}||sample{^^sample^^}||<sup>
+||subscript||!two _||sample{''{__''}sample{''__}''}||sample{__sample__}||<sub>
 
-Lines starting with `//' becomes a comment line.
-Comment lines is not outputted.
+* You can nest different decrations.
+* Big and Small can nest itself and others can't.
 
-* Example statement
-  // This is a comment line.
+[center]
+||!description||!output
+||{!{'emphasis and {=delete=}'} can nest!}||{'emphasis and {=delete=}'} can nest
+||{!1{+2{+3{+4{+5+}4+}3+}2+}1!}||1{+2{+3{+4{+5+}4+}3+}2+}1
+||{!1{-2{-3{-4{-5-}4-}3-}2-}1!}||1{-2{-3{-4{-5-}4-}3-}2-}1
+||{!Other {'decorations {'cannot'} nest'}!}||Other {'decoration {'cannot'} nest'}
 
-* Example output (not displayed)
-// This is a comment line.
+!!Mathematical expression
+
+Text enclosed with curly brackets + doller ('{$') displays mathematical expression(need [[mimeTeX|http://www.forkosh.com/mimetex.html]] plugin).
+
+[center]
+||!description||!outpur
+||math {!{$f(x) = \frac{1}{3}$}!} sample||math {$f(x) = \frac{1}{3}$} sample
+
+!!Ohter inline elements
+
+[center]
+||!||!mark||!description||!output||!note
+||citation||!{@||{!{@sample@}!}||{@sample@}||<cite>
+||no conversion||!{!||{!{!{@!}sample{!@}!}!}||{!{@sample@}!}||output text as is
+||span||!{!{"!}||{!{"[cls]sample"}!}||{"[cls]sample"}||span tag(with class/title attributes)
+
+!Block elements
+
+A block starts with "<<<" + command line and end with ">>>" line. You can nest block elements except "asis" and "pre_asis"(see below).
+
+!!Blockquote
+* "blockquote(b)" commands converts a text lines to blockquote.
+
+[center]
+||!(((||!(((
+||(((||(((
+description
+)))
+output
+)))
+<<<a
+ <<<b
+ blockquote
+ <<<b
+ nested blockquote
+ >>>
+ >>>
+>>>
+)))
+<<<b
+blockquote
+<<<b
+nested blockquote
+>>>
+>>>
+)))
+
+!!Text alignment
+*"center(c)" commands justfy a text lines to the center.
+*"right(r)" commands justfy a text lines to the right.
+*"left(l)" commands justfy a text lines to the left.
+
+[center]
+||!(((||!(((
+||(((||(((
+description
+)))
+output
+)))
+<<<a
+ <<<c
+ centering
+ <<<b
+ nested blockquote
+ <<<l
+ left-align
+ >>>
+ >>>
+ >>>
+ <<<r
+ right-align
+ >>>
+>>>
+)))
+<<<c
+centering
+<<<b
+nested blockquote
+<<<l
+left-align
+>>>
+>>>
+>>>
+<<<r
+right-align
+>>>
+)))
+
+!!Preformatted text
+*"pre(p)" commantd converts a text lines as preformatted text.
+* Cannot nest other block elements.
+* Some inline elements(e.g., strong, emphasis, del, underline, itaric, etc.) will be converted.
+* "pre_asis(pa)" commands suppresses comversion of inline elements.
+
+[center]
+||!(((||!(((
+||(((||(((
+||(((||(((
+description
+)))
+output
+)))
+<<<a
+ <<<p
+ preformatted text {'emphasis'} {=delete=}
+ >>>
+>>>
+)))
+<<<p
+preformatted text {'emphasis'} {=delete=}
+>>>
+)))
+<<<a
+ <<<pa
+ preformatted text {'emphasis'} {=delete=}
+ >>>
+>>>
+)))
+<<<pa
+preformatted text {'emphasis'} {=delete=}
+>>>
+)))
+
+!!Mathematical expression
+
+* "math(m)" commands converts a text to mathematical expression wivh paragraph tag using [[mimeTeX|http://www.forkosh.com/mimetex.html]].
+
+[center]
+||!description||!output
+||(((||(((
+<<<a
+ <<<m
+ f(x) = \frac{1}{3}
+ >>>
+>>>
+)))
+<<<m
+f(x) = \frac{1}{3}
+>>>
+)))
+
+!!No conversion
+*"asis(a)" commands shows a text lines as is.
+* A breaklines in block converts to breakline(<br />) tag.
+* Cannot nest other block elements.
+
+[center]
+||!(((||!(((
+||(((||(((
+description
+)))
+output
+)))
+<<<a
+ <<<a
+ sample {'emphasis'} {=delete=}
+ >>>
+>>>
+)))
+<<<a
+sample {'emphasis'} {=delete=}
+>>>
+)))
+
+!!Block with attribtes
+* "div(d)" commands converts a text lines to div block.
+
+[center]
+||!(((||!(((
+||(((||(((
+||(((||(((
+description
+)))
+output
+)))
+<<<a
+ <<<div[cls]
+ Enclose texts with <div class="cls"> and </div> tag.
+ >>>
+>>>
+)))
+<<<div[cls]
+Enclose texts with <div class="cls"> and </div> tag.
+>>>
+)))
+<<<a
+ <<<[,"title"]
+ Enclose texts with <div title="title"> ane </div> tag.
+ >>>
+>>>
+)))
+<<<[,"title"]
+Enclose texts with <div title="title"> ane </div> tag.
+>>>
+)))
+
+!Block in elements
+
+If list, definition data or table data elements are written the phrese "(((", following lines until the line ')))' are inserted in that elements.
+
+!!List
+
+In list and definition data, write block lines just after the elements.
+
+[center]
+||!description||!output
+||(((||(((
+<<<a
+#(((
+item 1
+ <<<c
+ centering
+ >>>
+)))
+#(((
+item 2(breakline)
+ line 2
+ <<<b
+ blockquote
+ >>>
+)))
+>>>
+)))
+#(((
+item 1
+<<<c
+centering
+>>>
+)))
+#(((
+item 2(breakline)
+ line 2
+<<<b
+blockquote
+>>>
+)))
+)))
+
+!!Table
+
+In table, write all of the elements of table first. Then write each blocks end with the line ")))" from top left to bottom right.
+
+[center]
+||!description||!output
+||(((||(((
+<<<a
+// write table first
+||(((||line 1, row 2
+||line 2, row 1||(((
+// table ends here
+// write each blocks from top left to bottom right.
+line 1, row 1
+ <<<r
+ justify right
+ >>>
+)))
+line 2, row 2
+
+paragraph(breakline)
+ sample
+*list item
+)))
+>>>
+)))
+// write table first
+||(((||line 1, row 2
+||line 2, row 1||(((
+// table ends here
+// write each blocks from top left to bottom right.
+line 1, row 1
+<<<r
+justify right
+>>>
+)))
+line 2, row 2
+
+paragraph(breakline)
+ sample
+*list item
+)))
+)))
 
 !Plugins
 
-One can use a plugin by surrounding text with two pairs of brackets.
+A text enclosed with two curly brackets becomes a plugin.
 Multiple lines parameter is supported.
-When a line contains plugin only, it becomes a block plugin,
-which is not surrounded by <p> ... </p>.
+When a line contains plugin only, it becomes a block plugin with div tag.
 
-*Example statement
-
- {{recent(3)}}
-
-* Example statement of multiple lines
-
- {{pre('
- ...
- ')}}
+[center]
+||!description||!output
+||(((||-
+||(((||-
+<<<a
+{!{!}{recent(3)}}
+>>>
+)))
+<<<a
+ {!{!}{pre('
+  ...
+ )}}
+>>>
+)))
