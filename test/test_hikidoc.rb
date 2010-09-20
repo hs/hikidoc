@@ -20,8 +20,8 @@ class HikiDocTestCase < Test::Unit::TestCase
                    %Q|[ cls]\nfoo|)
     assert_convert(%Q|<p class="cls">foo</p>\n|,
                    %Q|[cls ]\nfoo|)
-    assert_convert(%Q|<p class="cls">foo</p>\n|,
-                   %Q| [cls]\nfoo|)
+#    assert_convert(%Q|<p class="cls">foo</p>\n|,
+#                   %Q| [cls]\nfoo|)
     # valid chars in class
     assert_convert(%Q|<p class="c-l:s.1">foo</p>\n|,
                    "[c-l:s.1]\nfoo")
@@ -330,9 +330,6 @@ class HikiDocTestCase < Test::Unit::TestCase
 
     assert_convert(%Q|<p><span class="cls" title="title"><a href="http://hikiwiki.org/">http://hikiwiki.org/</a></span></p>\n|,
                    %Q|[ cls , "title" ]http://hikiwiki.org/|)
-
-    assert_convert(%Q|<p><a href="http://hikiwiki.org/" title=",&quot;foo&quot;">http://hikiwiki.org/</a></p>\n|,
-                   %Q|[[[,,"foo"]http://hikiwiki.org/]]|)
   end
 
   def test_image_link
@@ -500,12 +497,12 @@ class HikiDocTestCase < Test::Unit::TestCase
   end
 
   def test_list_with_attr
+    # basic
+    assert_convert(%Q|<ul>\n<li class="cls" title="title">foo</li>\n</ul>\n|,
+                   %Q|*[ cls , "title" ]foo|)
     # set attributes to ul/li tag
     assert_convert(%Q|<ul class="ul_cls" title="ul_title">\n<li class="li_cls" title="li_title">foo</li>\n</ul>\n|,
                    %Q|[ ul_cls , "ul_title" ]\n*[ li_cls , "li_title" ]foo|)
-    # allow space in front og the attribute
-    assert_convert(%Q|<ul>\n<li class="cls" title="title">foo</li>\n</ul>\n|,
-                   %Q|* [ cls , "title" ]foo|)
 
     # change ul attribute
     assert_convert(%Q|<ul>\n<li>foo</li>\n</ul><ul class="ul_cls" title="ul_title">\n<li class="li_cls" title="li_title">bar</li>\n<li>baz</li>\n</ul>\n|,
@@ -515,15 +512,16 @@ class HikiDocTestCase < Test::Unit::TestCase
     assert_convert(%Q|<ul>\n<li>foo<ul>\n<li><ul class="ul_cls" title="ul_title">\n<li class="li_cls" title="li_title">bar</li>\n</ul></li>\n</ul></li>\n<li>baz</li>\n</ul>\n|,
                    %Q|* foo\n***[ ul_cls, "ul_title"]\n***[ li_cls, "li_title"]bar\n* baz|)
 
-    assert_convert("<ul>\n<li>foo</li>\n</ul><ol title=\"cls\">\n<li>bar</li>\n</ol>\n",
-                   "* foo\n#[,cls]\n# bar")
+    assert_convert(%Q!<ul>\n<li>foo</li>\n</ul><ol class="cls" title="title">\n<li>bar</li>\n</ol>\n!,
+                   %Q|* foo\n#[ cls , "title"]\n# bar|)
 
     # enable_id
+    ## basic
+    assert_convert(%Q|<ul>\n<li id="id" class="cls" title="title">foo</li>\n</ul>\n|,
+                   %Q|*[ id , cls , "title" ]foo|,
+                   { :enable_id => true })
     assert_convert(%Q|<ul id="ul_id" class="ul_cls" title="ul_title">\n<li id="li_id" class="li_cls" title="li_title">foo</li>\n</ul>\n|,
                    %Q|[ ul_id , ul_cls , "ul_title" ]\n*[ li_id , li_cls , "li_title" ]foo|,
-                   { :enable_id => true })
-    assert_convert(%Q|<ul>\n<li id="id" class="cls" title="title">foo</li>\n</ul>\n|,
-                   %Q|* [ id , cls , "title" ]foo|,
                    { :enable_id => true })
 
     # error
@@ -1122,8 +1120,8 @@ class HikiDocTestCase < Test::Unit::TestCase
                    %Q!<<<div[cls,"title"]\nbar\n>>>!)
     assert_convert(%Q|<div class="cls" title="title">\n<p>bar</p>\n</div>\n|,
                    %Q!<<<div[ cls , "title" ]\nbar\n>>>!)
-    assert_convert(%Q|<div class="cls" title="title">\n<p>bar</p>\n</div>\n|,
-                   %Q!<<<div [ cls , "title" ]\nbar\n>>>!)
+#    assert_convert(%Q|<div class="cls" title="title">\n<p>bar</p>\n</div>\n|,
+#                   %Q!<<<div [ cls , "title" ]\nbar\n>>>!)
     # enable_id
     assert_convert(%Q|<div id="id" class="cls" title="title">\n<p>bar</p>\n</div>\n|,
                    %Q!<<<div[ id , cls , "title"]\nbar\n>>>!,
@@ -1229,8 +1227,8 @@ class HikiDocTestCase < Test::Unit::TestCase
     # normal
     assert_convert(%Q|<blockquote class="cls" title="title">\n<p>foo</p>\n</blockquote>\n|,
                    %Q|<<<blockquote[ cls , "title" ]\nfoo\n>>>|)
-    assert_convert(%Q|<blockquote class="cls" title="title">\n<p>foo</p>\n</blockquote>\n|,
-                   %Q|<<<blockquote [ cls , "title" ]\nfoo\n>>>|)
+#    assert_convert(%Q|<blockquote class="cls" title="title">\n<p>foo</p>\n</blockquote>\n|,
+#                   %Q|<<<blockquote [ cls , "title" ]\nfoo\n>>>|)
 
     assert_convert(%Q|<blockquote class="cls" title="title">\n<p>foo</p>\n</blockquote>\n|,
                    %Q|<<<b[ cls , "title" ]\nfoo\n>>>|)
@@ -1344,12 +1342,12 @@ class HikiDocTestCase < Test::Unit::TestCase
   def test_center_with_attr
     assert_convert(%Q|<div style="text-align:center;" class="cls" title="title">\n<p>foo</p>\n</div>\n|,
                    %Q!<<<center[ cls , "title" ]\nfoo\n>>>!)
-    assert_convert(%Q|<div style="text-align:center;" class="cls" title="title">\n<p>foo</p>\n</div>\n|,
-                   %Q!<<<center [ cls , "title" ]\nfoo\n>>>!)
+#    assert_convert(%Q|<div style="text-align:center;" class="cls" title="title">\n<p>foo</p>\n</div>\n|,
+#                   %Q!<<<center [ cls , "title" ]\nfoo\n>>>!)
     assert_convert(%Q|<div style="text-align:center;" class="cls" title="title">\n<p>foo</p>\n</div>\n|,
                    %Q!<<<c[ cls , "title" ]\nfoo\n>>>!)
     assert_convert(%Q|<div style="text-align:center;" class="cls" title="title">\n<p>foo</p>\n</div>\n|,
-                   %Q!<<< c [ cls , "title" ]\nfoo\n>>>!)
+                   %Q!<<< c[ cls , "title" ]\nfoo\n>>>!)
 
     # amazon
     assert_convert(%Q|<div align="center" class="cls" title="title">\n<p>foo</p>\n</div>\n|,
@@ -1387,17 +1385,17 @@ class HikiDocTestCase < Test::Unit::TestCase
     assert_convert(%Q|<div style="text-align:right;" class="cls" title="title">\n<p>foo</p>\n</div>\n|,
                    %Q!<<<right[ cls , "title" ]\nfoo\n>>>!)
     assert_convert(%Q|<div style="text-align:right;" class="cls" title="title">\n<p>foo</p>\n</div>\n|,
-                   %Q!<<< right [ cls , "title" ]\nfoo\n>>>!)
+                   %Q!<<< right[ cls , "title" ]\nfoo\n>>>!)
     assert_convert(%Q|<div style="text-align:right;" class="cls" title="title">\n<p>foo</p>\n</div>\n|,
                    %Q!<<<r[ cls , "title" ]\nfoo\n>>>!)
     assert_convert(%Q|<div style="text-align:right;" class="cls" title="title">\n<p>foo</p>\n</div>\n|,
-                   %Q!<<< r [ cls , "title" ]\nfoo\n>>>!)
+                   %Q!<<< r[ cls , "title" ]\nfoo\n>>>!)
 
     # amazon
     assert_convert(%Q|<div align="right" class="cls" title="title">\n<p>foo</p>\n</div>\n|,
-                   %Q!<<< right [cls , "title"]\nfoo\n>>>!, { :amazon_dtp_mode => true })
+                   %Q!<<< right[cls , "title"]\nfoo\n>>>!, { :amazon_dtp_mode => true })
     assert_convert(%Q|<div align="right" class="cls" title="title">\n<p>foo</p>\n</div>\n|,
-                   %Q!<<< r [cls , "title"]\nfoo\n>>>!, { :amazon_dtp_mode => true })
+                   %Q!<<< r[cls , "title"]\nfoo\n>>>!, { :amazon_dtp_mode => true })
 
     # enable_id
     assert_convert(%Q|<div style="text-align:right;" id="id" class="cls" title="title">\n<p>foo</p>\n</div>\n|,
@@ -1433,17 +1431,17 @@ class HikiDocTestCase < Test::Unit::TestCase
     assert_convert(%Q|<div style="text-align:left;" class="cls" title="title">\n<p>foo</p>\n</div>\n|,
                    %Q!<<<left[ cls , "title" ]\nfoo\n>>>!)
     assert_convert(%Q|<div style="text-align:left;" class="cls" title="title">\n<p>foo</p>\n</div>\n|,
-                   %Q!<<< left [ cls , "title" ]\nfoo\n>>>!)
+                   %Q!<<< left[ cls , "title" ]\nfoo\n>>>!)
     assert_convert(%Q|<div style="text-align:left;" class="cls" title="title">\n<p>foo</p>\n</div>\n|,
                    %Q!<<<l[ cls , "title" ]\nfoo\n>>>!)
     assert_convert(%Q|<div style="text-align:left;" class="cls" title="title">\n<p>foo</p>\n</div>\n|,
-                   %Q!<<< l [ cls , "title" ]\nfoo\n>>>!)
+                   %Q!<<< l[ cls , "title" ]\nfoo\n>>>!)
 
     # amazon
     assert_convert(%Q|<div align="left" class="cls" title="title">\n<p>foo</p>\n</div>\n|,
-                   %Q!<<< left [cls , "title"]\nfoo\n>>>!, { :amazon_dtp_mode => true })
+                   %Q!<<< left[cls , "title"]\nfoo\n>>>!, { :amazon_dtp_mode => true })
     assert_convert(%Q|<div align="left" class="cls" title="title">\n<p>foo</p>\n</div>\n|,
-                   %Q!<<< l [cls , "title"]\nfoo\n>>>!, { :amazon_dtp_mode => true })
+                   %Q!<<< l[cls , "title"]\nfoo\n>>>!, { :amazon_dtp_mode => true })
 
     # enable_id
     assert_convert(%Q|<div style="text-align:left;" id="id" class="cls" title="title">\n<p>foo</p>\n</div>\n|,
@@ -1539,11 +1537,11 @@ class HikiDocTestCase < Test::Unit::TestCase
     assert_convert(%Q|<pre class="cls" title="title">bar</pre>\n|,
                    %Q|<<<pre[ cls , "title" ]\nbar\n>>>|)
     assert_convert(%Q|<pre class="cls" title="title">bar</pre>\n|,
-                   %Q|<<<pre [ cls , "title" ]\nbar\n>>>|)
+                   %Q|<<< pre[ cls , "title" ]\nbar\n>>>|)
     assert_convert(%Q|<pre class="cls" title="title">bar</pre>\n|,
                    %Q|<<<p[ cls , "title" ]\nbar\n>>>|)
     assert_convert(%Q|<pre class="cls" title="title">bar</pre>\n|,
-                   %Q|<<<p [ cls , "title" ]\nbar\n>>>|)
+                   %Q|<<< p[ cls , "title" ]\nbar\n>>>|)
 
     # enable_id
     assert_convert(%Q|<pre id="id" class="cls" title="title">bar</pre>\n|,
@@ -1638,15 +1636,15 @@ class HikiDocTestCase < Test::Unit::TestCase
     assert_convert(%Q|<pre class="cls" title="title">bar</pre>\n|,
                    %Q|<<<pre_asis[ cls , "title" ]\nbar\n>>>|)
     assert_convert(%Q|<pre class="cls" title="title">bar</pre>\n|,
-                   %Q|<<<pre_asis [ cls , "title" ]\nbar\n>>>|)
+                   %Q|<<< pre_asis[ cls , "title" ]\nbar\n>>>|)
     assert_convert(%Q|<pre class="cls" title="title">bar</pre>\n|,
                    %Q|<<<p_a[ cls , "title" ]\nbar\n>>>|)
     assert_convert(%Q|<pre class="cls" title="title">bar</pre>\n|,
-                   %Q|<<<p_a [ cls , "title" ]\nbar\n>>>|)
+                   %Q|<<< p_a[ cls , "title" ]\nbar\n>>>|)
     assert_convert(%Q|<pre class="cls" title="title">bar</pre>\n|,
                    %Q|<<<pa[ cls , "title" ]\nbar\n>>>|)
     assert_convert(%Q|<pre class="cls" title="title">bar</pre>\n|,
-                   %Q|<<<pa [ cls , "title" ]\nbar\n>>>|)
+                   %Q|<<< pa[ cls , "title" ]\nbar\n>>>|)
 
     # enable_id
     assert_convert(%Q|<pre id="id" class="cls" title="title">bar</pre>\n|,
@@ -1745,9 +1743,9 @@ class HikiDocTestCase < Test::Unit::TestCase
     assert_convert(%Q|<p class="cls" title="title">foo</p>\n|,
                    %Q!<<<a[ cls , "title" ]\nfoo\n>>>!)
     assert_convert(%Q|<p class="cls" title="title">foo</p>\n|,
-                   %Q!<<< asis [ cls , "title" ]\nfoo\n>>>!)
+                   %Q!<<< asis[ cls , "title" ]\nfoo\n>>>!)
     assert_convert(%Q|<p class="cls" title="title">foo</p>\n|,
-                   %Q!<<< a [ cls , "title" ]\nfoo\n>>>!)
+                   %Q!<<< a[ cls , "title" ]\nfoo\n>>>!)
 
     # enable_id
     assert_convert(%Q|<p id="id" class="cls" title="title">foo</p>\n|,
@@ -1779,9 +1777,9 @@ class HikiDocTestCase < Test::Unit::TestCase
     assert_convert(%Q|<p class="math cls" title="title"><div class="plugin">{{mtex 'foo'}}</div>\n</p>\n|,
                    %Q!<<<m[ cls , "title"]\nfoo\n>>>!)
     assert_convert(%Q|<p class="math cls" title="title"><div class="plugin">{{mtex 'foo'}}</div>\n</p>\n|,
-                   %Q!<<< math [ cls , "title"]\nfoo\n>>>!)
+                   %Q!<<< math[ cls , "title"]\nfoo\n>>>!)
     assert_convert(%Q|<p class="math cls" title="title"><div class="plugin">{{mtex 'foo'}}</div>\n</p>\n|,
-                   %Q!<<< m [ cls , "title"]\nfoo\n>>>!)
+                   %Q!<<< m[ cls , "title"]\nfoo\n>>>!)
 
     # enable_id
     assert_convert(%Q|<p id="id" class="math cls" title="title"><div class="plugin">{{mtex 'foo'}}</div>\n</p>\n|,
