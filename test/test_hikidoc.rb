@@ -282,6 +282,9 @@ class HikiDocTestCase < Test::Unit::TestCase
     assert_convert("<h1 class=\"cls\">foo</h1>\n", "![,cls]foo", { :enable_id => true })
     assert_convert("<h1 title=\"title\">foo</h1>\n", %Q|!["title"]foo|, { :enable_id => true })
     assert_convert("<h1 id=\"id\" class=\"cls\">foo</h1>\n", "![id,cls]foo", { :enable_id => true })
+
+    # not attribute
+    assert_convert(%Q!<h1>[cls,"title"]foo</h1>\n!, %Q|! [cls,"title"]foo|)
   end
 
   def test_link
@@ -330,6 +333,10 @@ class HikiDocTestCase < Test::Unit::TestCase
 
     assert_convert(%Q|<p><span class="cls" title="title"><a href="http://hikiwiki.org/">http://hikiwiki.org/</a></span></p>\n|,
                    %Q|[ cls , "title" ]http://hikiwiki.org/|)
+
+    # not attribute
+    assert_convert(%Q|<p><a href=" [ cls , &quot;title&quot; ]http://hikiwiki.org/"> [ cls , "title" ]http://hikiwiki.org/</a></p>\n|,
+                   %Q<[[ [ cls , "title" ]http://hikiwiki.org/]]>)
   end
 
   def test_image_link
@@ -365,6 +372,10 @@ class HikiDocTestCase < Test::Unit::TestCase
 
     assert_convert(%Q|<p><span class="cls" title="title"><img src="http://hikiwiki.org/t.jpg" alt="" /></span></p>\n|,
                    %Q|[ cls , "title" ]http://hikiwiki.org/t.jpg|)
+
+    # not attribute
+    assert_convert(%Q|<p><img src=" [ cls , &quot;title&quot; ]http://hikiwiki.org/img.png" alt="" /></p>\n|,
+                   %Q|[[ [ cls , "title" ]http://hikiwiki.org/img.png]]|)
   end
 
   def test_inter_wiki_name
@@ -451,6 +462,9 @@ class HikiDocTestCase < Test::Unit::TestCase
     assert_convert(%Q|<hr id="id" />\n|,
                    %Q|----[id]|,
                    { :enable_id => true })
+
+    # not attribute
+    assert_convert(%Q|<p>---- [ cls , "title" ]</p>\n|, %Q|---- [ cls , "title" ]|)
   end
 
   def test_list
@@ -527,6 +541,10 @@ class HikiDocTestCase < Test::Unit::TestCase
     # error
     assert_convert(%Q|<p><span class="cls">* foo</span></p>\n|,
                    "[cls]* foo")
+
+    # not attribute
+    assert_convert(%Q|<ul>\n<li>[ cls , "title" ]foo</li>\n</ul>\n|,
+                   %Q|* [ cls , "title" ]foo|)
   end
 
   def test_list_with_block
@@ -625,6 +643,14 @@ class HikiDocTestCase < Test::Unit::TestCase
                    %Q|</dl>\n|,
                    %Q|[ dl_id , dl_cls , "dl_title" ]\n;[ dt_id , dt_cls , "dt_title" ]a;:[ dd_id , dd_cls, "dd_title" ]b|,
                    { :enable_id => true })
+
+    # not attribute
+    assert_convert(%Q|<dl>\n| +
+                   %Q|<dt>[ dt_cls , "dt_title" ]a</dt>\n| +
+                   %Q|<dd>[ dd_cls, "dd_title" ]b</dd>\n| +
+                   %Q|</dl>\n|,
+                   %Q|; [ dt_cls , "dt_title" ]a\n: [ dd_cls, "dd_title" ]b|)
+
   end
 
   def test_definition_with_link
@@ -744,6 +770,12 @@ class HikiDocTestCase < Test::Unit::TestCase
                    %Q|<tr><td>[ ;tr_cls , "tr_title" ]</td>| +
                    %Q|<td class="td_cls" title="td_title">a</td><td>b</td></tr>\n</table>\n|,
                    %Q![ t_cls , "t_title" ]\n[ ;tr_cls , "tr_title" ]||[ td_cls , "td_title" ]a||b!)
+
+    # not attribute
+    assert_convert(%Q|<table>\n| +
+                   %Q|<tr>| +
+                   %Q|<td>[ td_cls , "td_title" ]a</td><td>b</td></tr>\n</table>\n|,
+                   %Q!|| [ td_cls , "td_title" ]a||b!)
   end
 
   def test_table_with_modifier
@@ -998,6 +1030,11 @@ class HikiDocTestCase < Test::Unit::TestCase
                    "{~[cls]red:text~}", { :amazon_dtp_mode => true })
     assert_convert(%Q|<p><font color="red" title="title">text</font></p>\n|,
                    %Q|{~["title"]red:text~}|, { :amazon_dtp_mode => true })
+
+    # not attribute
+    assert_convert(%Q!<p><strong>[ cls , \"title\" ]bar</strong></p>\n!,
+                   %Q|{'' [ cls , "title" ]bar''}|)
+
   end
 
   def test_nested_modifier
@@ -1120,8 +1157,6 @@ class HikiDocTestCase < Test::Unit::TestCase
                    %Q!<<<div[cls,"title"]\nbar\n>>>!)
     assert_convert(%Q|<div class="cls" title="title">\n<p>bar</p>\n</div>\n|,
                    %Q!<<<div[ cls , "title" ]\nbar\n>>>!)
-#    assert_convert(%Q|<div class="cls" title="title">\n<p>bar</p>\n</div>\n|,
-#                   %Q!<<<div [ cls , "title" ]\nbar\n>>>!)
     # enable_id
     assert_convert(%Q|<div id="id" class="cls" title="title">\n<p>bar</p>\n</div>\n|,
                    %Q!<<<div[ id , cls , "title"]\nbar\n>>>!,
@@ -1129,6 +1164,10 @@ class HikiDocTestCase < Test::Unit::TestCase
     # abbreviation
     assert_convert(%Q|<div class="cls" title="title">\n<p>bar</p>\n</div>\n|,
                    %Q!<<<[ cls , "title" ]\nbar\n>>>!)
+
+    # not attribute
+    assert_convert(%Q|<p>&lt;&lt;&lt;div [ cls , \"title\" ]\nbar\n&gt;&gt;&gt;</p>\n|,
+                   %Q!<<<div [ cls , "title" ]\nbar\n>>>!)
   end
 
   def test_blockquote
