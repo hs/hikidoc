@@ -95,7 +95,6 @@ class HikiDoc
   def get_attr(str)
     if m = /\A#{tag_attributes_re}/.match(str)
       str = m.post_match
-p restore_plugin_block(m[0])[1..-2] if @options[:debug]
       @output.push_attr(@options[:enable_id] ? restore_plugin_block(m[0])[1..-2] : ',' + restore_plugin_block(m[0])[1..-2])
     end
     str
@@ -179,7 +178,7 @@ p restore_plugin_block(m[0])[1..-2] if @options[:debug]
         f.gets
       when HEADER_RE
         compile_header f
-      when HRULE_RE
+      when hrule_re
         compile_hrule f
       when LIST_RE
         compile_list f
@@ -224,19 +223,22 @@ p restore_plugin_block(m[0])[1..-2] if @options[:debug]
     line = f.gets
     @header_re ||= /\A!{1,#{7 - @level}}/
     level = line.slice!(@header_re).size - 1
-    title = lstrip(line)
-    title = get_attr(title)
+    title = get_attr(line)
     title << get_continuation_line(f)
-    title = rstrip(title)
+    title.strip!
 
     @output.headline @level, level, compile_inline(title)
   end
 
   HRULE_RE = /\A----(?:\[.*\])?$/
 
+  def hrule_re
+    /\A----(#{tag_attributes_re})?\Z/
+  end
+
   def compile_hrule(f)
-    if m = tag_attributes_re.match(f.gets)
-      get_attr(m[0])
+    if m = hrule_re.match(f.gets)
+      get_attr(m[1]) if m[1]
     end
     @output.hrule
   end
@@ -252,7 +254,7 @@ p restore_plugin_block(m[0])[1..-2] if @options[:debug]
     if item.nil?
       compile_element_block(f)
     else
-      @output.listitem compile_inline(item)
+      @output.listitem compile_inline(item.strip)
     end
     true
   end
@@ -306,8 +308,8 @@ p restore_plugin_block(m[0])[1..-2] if @options[:debug]
     f.while_match(LIST_RE) do |line|
       list_type = (line[0,1] == ULIST ? "ul" : "ol")
       new_level = line.slice(LIST_RE).size
-      item = lstrip(line.sub(LIST_RE, ""))
-      if INLINE_OPEN_RE.match(item)
+      item = line.sub(LIST_RE, "")
+      if INLINE_OPEN_RE.match(item.strip)
         f.ungets(item)
         item = nil
       else
@@ -356,7 +358,7 @@ p restore_plugin_block(m[0])[1..-2] if @options[:debug]
       else
         dd = get_attr(dd) if dd
         dt = get_attr(dt) if dt
-        @output.dlist_item compile_inline(dt), compile_inline(dd)
+        @output.dlist_item compile_inline(dt.to_s.strip), compile_inline(dd.to_s.strip)
       end
       skip_comments f
     end
@@ -389,7 +391,7 @@ p restore_plugin_block(m[0])[1..-2] if @options[:debug]
           @output.__send__("#{mid}_close")
         else
           col = get_attr(col)
-          @output.__send__(mid, compile_inline(col.chomp), rs, cs)
+          @output.__send__(mid, compile_inline(col.strip), rs, cs)
         end
       end
       @output.table_record_close
@@ -470,7 +472,7 @@ p restore_plugin_block(m[0])[1..-2] if @options[:debug]
   end
 
   def block_open_re
-    /\A<<<+\s*(#{block_tag_re})? */
+    /\A<<<+\s*(#{block_tag_re})?/
   end
 
   # for identification
@@ -499,7 +501,7 @@ p restore_plugin_block(m[0])[1..-2] if @options[:debug]
     when BLOCK_RIGHT_RE
       "right"
     when nil
-      tag_attributes_re.match(rest) ? "div" : "none"
+      /\A#{tag_attributes_re}/.match(rest) ? "div" : "none"
     else
       nil
     end
@@ -546,7 +548,7 @@ p restore_plugin_block(m[0])[1..-2] if @options[:debug]
 
   def get_inline_body(f)
     line_buffer = []
-    first = f.gets
+    first = lstrip(f.gets)
     m = INLINE_OPEN_RE.match(first) or raise UnexpectedError, "must not happen"
     return first unless m.post_match.empty?
     while line_buffer += f.break(INLINE_TERMINATE_RE) do
@@ -575,7 +577,7 @@ p restore_plugin_block(m[0])[1..-2] if @options[:debug]
     line_buffer = []
     line_buffer << f.gets
     m = block_open_re.match(line_buffer[0].chomp) or raise UnexpectedError, "must not happen"
-    return line_buffer[0] unless m.post_match.empty? || tag_attributes_re.match(m.post_match)
+    return line_buffer[0] unless m.post_match.empty? || /\A#{tag_attributes_re}/.match(m.post_match)
 =begin
     p line_buffer[0] if @options[:debug]
     ggg = gbl(m[1], m.post_match)
@@ -677,13 +679,15 @@ p str if @options[:debug]
   end
 
   BLANK = /\A$/
-  PARAGRAPH_END_RE = Regexp.union(BLANK,
-                                  HEADER_RE, HRULE_RE, LIST_RE, DLIST_RE,
-                                  BLOCK_OPEN_RE, TABLE_RE)
+  def paragraph_end_re
+    Regexp.union(BLANK,
+                 HEADER_RE, hrule_re, LIST_RE, DLIST_RE,
+                 block_open_re, TABLE_RE)
+  end
 
 
   def compile_paragraph(f, preload = nil)
-    lines = f.break(PARAGRAPH_END_RE)\
+    lines = f.break(paragraph_end_re)\
         .reject {|line| COMMENT_RE =~ line }
     lines.unshift(preload) if preload
     if lines.size == 1 and /\A\0(\d+)\0\z/ =~ strip(lines[0])
