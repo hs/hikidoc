@@ -39,7 +39,7 @@ rescue LoadError
 end
 
 class HikiDoc
-  VERSION = "0.0.6a" # FIXME
+  VERSION = "0.1.0a"
 
   class Error < StandardError
   end
@@ -81,14 +81,14 @@ class HikiDoc
 
   def default_options
     {
-      :allow_bracket_inline_image => true,
-      :evaluate_plugins_in_pre => false,
-      :use_wiki_name => true,
-      :use_not_wiki_name => true,
-      :amazon_dtp_mode => false,
-      :enable_id => false,
-      :enable_math => true,
-      :debug => false,
+      allow_bracket_inline_image: true,
+      evaluate_plugins_in_pre: false,
+      use_wiki_name: true,
+      use_not_wiki_name: true,
+      amazon_dtp_mode: false,
+      enable_id: false,
+      enable_math: true,
+      debug: false,
     }
   end
 
@@ -113,10 +113,8 @@ class HikiDoc
     buf = ""
     @plugin_blocks = []
     while chunk = s.scan_until(/\{\{/)
-      tail = chunk[-2, 2]
       chunk[-2, 2] = ""
       buf << chunk
-      # plugin
       if block = extract_plugin_block(s)
         @plugin_blocks.push block
         buf << "\0#{@plugin_blocks.size - 1}\0"

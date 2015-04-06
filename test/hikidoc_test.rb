@@ -422,14 +422,14 @@ class HikiDocTestCase < Test::Unit::TestCase
                    "^WikiName")
     assert_convert("<p>^<a href=\"WikiName\">WikiName</a></p>\n",
                    "^WikiName",
-                   :use_not_wiki_name => false)
+                   use_not_wiki_name: false)
     assert_convert("<p>^WikiName</p>\n",
                    "^WikiName",
-                   :use_wiki_name => false)
+                   use_wiki_name: false)
     assert_convert("<p>^WikiName</p>\n",
                    "^WikiName",
-                   :use_wiki_name => false,
-                   :use_not_wiki_name => false)
+                   use_wiki_name: false,
+                   use_not_wiki_name: false)
     assert_convert("<p>foo WikiName bar</p>\n",
                    "foo ^WikiName bar")
   end
@@ -439,7 +439,7 @@ class HikiDocTestCase < Test::Unit::TestCase
                    "WikiName")
     assert_convert("<p>WikiName</p>\n",
                    "WikiName",
-                   :use_wiki_name => false)
+                   use_wiki_name: false)
   end
 
   def test_comment

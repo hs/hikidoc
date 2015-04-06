@@ -12,18 +12,26 @@ HikiDoc requires Ruby 1.8.2 or later.
 
 !! Download
 
-Get from the subversion repository http://hikidoc.rubyforge.org/svn/ .
+Get from the GitHub repository https://github.com/hiki/hikidoc
 
  (eg.)
- svn co http://hikidoc.rubyforge.org/svn/trunk/ hikidoc
+ git clone https://github.com/hiki/hikidoc.git
 
 !! Installation
+
+!!! Semi-manual installation
 
 Run the 'setup.rb' script like so:
 
  $ ruby setup.rb config
  $ ruby setup.rb setup
  # ruby setup.rb install
+
+!!! Installation via RubyGems
+
+Run the following command:
+
+ $ gem install hikidoc
 
 !! Syntax
 
@@ -51,6 +59,7 @@ The following softwares use the HikiDoc library or the HikiDoc format.
 :[[lily|http://lily.sourceforge.jp/]]:a simple CMS
 :[[Text::HikiDoc|http://search.cpan.org/perldoc?Text::HikiDoc]]:HikiDoc by Perl
 :[[PikiDoc|http://github.com/moro/piki_doc/]]:a library that you can add plugin functions on HikiDoc
+:[[mail2weblog|http://sourceforge.jp/projects/mail2weblog/wiki/FrontPage]]:a blog system via mobile phone email
 
 !! License
 

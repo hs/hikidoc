@@ -11,19 +11,27 @@ HikiDoc の実行には Ruby 1.8.2 以降が必要です。
 
 !! ダウンロード
 
-Subversion レポジトリ http://hikidoc.rubyforge.org/svn/ から取得して
+GitHub レポジトリ https://github.com/hiki/hikidoc から取得して
 ください。
 
  (例)
- svn co http://hikidoc.rubyforge.org/svn/trunk/ hikidoc
+ git clone https://github.com/hiki/hikidoc.git
 
 !! インストール
+
+!!! 半手動でのインストール
 
 以下のように 'setup.rb' スクリプトを用いてインストールします。
 
  $ ruby setup.rb config
  $ ruby setup.rb setup
  # ruby setup.rb install
+
+!!! RubyGems経由でのインストール
+
+以下のようにインストールします。
+
+ $ gem install hikidoc
 
 !! 文法
 
@@ -48,6 +56,7 @@ Subversion レポジトリ http://hikidoc.rubyforge.org/svn/ から取得して
 :[[lily|http://lily.sourceforge.jp/]]:シンプルな CMS (Web サイト構築システム)
 :[[Text::HikiDoc|http://search.cpan.org/perldoc?Text::HikiDoc]]:Perl による HikiDoc の実装
 :[[PikiDoc|http://github.com/moro/piki_doc/]]:HikiDocの「プラグイン」機能を追加できるライブラリです
+:[[mail2weblog|http://sourceforge.jp/projects/mail2weblog/wiki/FrontPage]]:高機能メール投稿型モブログ
 
 !! ライセンス
 
