@@ -170,6 +170,53 @@ class HikiDocTestCase < Test::Unit::TestCase
                    %Q|["c<l{&quot;}s>"]\nfoo|)
   end
 
+  def test_custom_attr
+	# '('
+    options = {:attr_prefix => '('}
+    assert_convert(%Q|<p class="cls">foo</p>\n|,
+                   "(cls)\nfoo",
+                   options)
+    assert_convert(%Q|<p>((cls))\nfoo</p>\n|,
+                   "((cls))\nfoo",
+                   options)
+
+	# "'"
+    options = {:attr_prefix => "'"}
+    assert_convert(%Q|<p class="cls">foo</p>\n|,
+                   "'cls'\nfoo",
+                   options)
+    assert_convert(%Q|<p>''cls''\nfoo</p>\n|,
+                   "''cls''\nfoo",
+                   options)
+
+	# '`'
+    options = {:attr_prefix => '`'}
+    assert_convert(%Q|<p class="cls">foo</p>\n|,
+                   "`cls'\nfoo",
+                   options)
+    assert_convert(%Q|<p>``cls''\nfoo</p>\n|,
+                   "``cls''\nfoo",
+                   options)
+
+	# '|'
+    options = {:attr_prefix => '|'}
+    assert_convert(%Q|<p class="cls">foo</p>\n|,
+                   "|cls|\nfoo",
+                   options)
+    assert_convert(%Q|<table>\n<tr><td>cls</td><td>foo</td></tr>\n</table>\n|,
+                   "||cls||foo",
+                   options)
+
+	# '<'
+    options = {:attr_prefix => '<'}
+    assert_convert(%Q|<p class="cls">foo</p>\n|,
+                   "<cls>\nfoo",
+                   options)
+    assert_convert(%Q|<p>&lt;&lt;cls&gt;&gt;\nfoo</p>\n|,
+                   "<<cls>>\nfoo",
+                   options)
+  end
+
   def test_reference
     # normal
     assert_convert(%Q|<p>&#34;</p>\n|,

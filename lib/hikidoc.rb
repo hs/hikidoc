@@ -61,6 +61,27 @@ class HikiDoc
     @header_re = nil
     @level = options[:level] || 1
     @plugin_syntax = options[:plugin_syntax] || method(:valid_plugin_syntax?)
+	attr_prefix = options[:attr_prefix].to_s.length == 1 ? options[:attr_prefix] : '['
+    case attr_prefix
+    when '('
+	  @attr_prefix = '\('
+	  @attr_suffix = '\)'
+    when '|'
+	  @attr_prefix = '\|'
+	  @attr_suffix = '\|'
+    when '<'
+	  @attr_prefix = '<'
+	  @attr_suffix = '>'
+    when "'"
+	  @attr_prefix = "'"
+	  @attr_suffix = "'"
+    when '`'
+	  @attr_prefix = "`"
+	  @attr_suffix = "'"
+    else
+	  @attr_prefix = '\['
+	  @attr_suffix = '\]'
+	end
   end
 
   def compile(src)
@@ -430,9 +451,9 @@ class HikiDoc
 
   def tag_attributes_re
     if @options[:enable_id]
-      %r<\[ *(?:#{ATTRIBUTES_RE}|(?:#{SELECTORS_RE})? *, *(?:#{ATTRIBUTES_RE})?|(?:(?:#{SELECTORS_RE})? *, *){2}(?:#{TITLE_RE})?) *\]>
+      %r<#{@attr_prefix} *(?:#{ATTRIBUTES_RE}|(?:#{SELECTORS_RE})? *, *(?:#{ATTRIBUTES_RE})?|(?:(?:#{SELECTORS_RE})? *, *){2}(?:#{TITLE_RE})?) *#{@attr_suffix}>
     else
-      %r<\[ *(?:#{ATTRIBUTES_RE}|(?:#{SELECTORS_RE})? *, *(?:#{TITLE_RE})) *\]>
+      %r<#{@attr_prefix} *(?:#{ATTRIBUTES_RE}|(?:#{SELECTORS_RE})? *, *(?:#{TITLE_RE})) *#{@attr_suffix}>
     end
   end
 =begin
