@@ -176,7 +176,7 @@ class HikiDoc
         f.gets
       when HEADER_RE
         compile_header f
-      when hrule_re
+      when HRULE_RE
         compile_hrule f
       when LIST_RE
         compile_list f
@@ -221,22 +221,18 @@ class HikiDoc
     line = f.gets
     @header_re ||= /\A!{1,#{7 - @level}}/
     level = line.slice!(@header_re).size - 1
-    title = get_attr(line)
+    title = get_attr(line).lstrip
     title << get_continuation_line(f)
-    title.strip!
+    title.rstrip!
 
     @output.headline @level, level, compile_inline(title)
   end
 
-  HRULE_RE = /\A----(?:\[.*\])?$/
-
-  def hrule_re
-    /\A----(#{tag_attributes_re})?\Z/
-  end
+  HRULE_RE = /\A----(?:\[.*\])?\s*$/
 
   def compile_hrule(f)
-    if m = hrule_re.match(f.gets)
-      get_attr(m[1]) if m[1]
+    if m = tag_attributes_re.match(f.gets)
+      get_attr(m[0])
     end
     @output.hrule
   end
@@ -252,7 +248,7 @@ class HikiDoc
     if item.nil?
       compile_element_block(f)
     else
-      @output.listitem compile_inline(item.strip)
+      @output.listitem compile_inline(item).lstrip
     end
     true
   end
@@ -307,7 +303,7 @@ class HikiDoc
       list_type = (line[0,1] == ULIST ? "ul" : "ol")
       new_level = line.slice(LIST_RE).size
       item = line.sub(LIST_RE, "")
-      if INLINE_OPEN_RE.match(item.strip)
+      if INLINE_OPEN_RE.match(item)
         f.ungets(item)
         item = nil
       else
@@ -354,9 +350,9 @@ class HikiDoc
         compile_element_block(f)
         @output.dd_close
       else
-        dd = get_attr(dd) if dd
-        dt = get_attr(dt) if dt
-        @output.dlist_item compile_inline(dt.to_s.strip), compile_inline(dd.to_s.strip)
+        dd = get_attr(dd).lstrip if dd
+        dt = get_attr(dt).lstrip if dt
+        @output.dlist_item compile_inline(dt), compile_inline(dd)
       end
       skip_comments f
     end
@@ -388,8 +384,8 @@ class HikiDoc
           compile_element_block(f)
           @output.__send__("#{mid}_close")
         else
-          col = get_attr(col)
-          @output.__send__(mid, compile_inline(col.strip), rs, cs)
+          col = get_attr(col).lstrip
+          @output.__send__(mid, compile_inline(col.chomp), rs, cs)
         end
       end
       @output.table_record_close
@@ -470,12 +466,12 @@ class HikiDoc
   end
 
   def block_open_re
-    /\A<<<+\s*(#{block_tag_re})?/
+    /\A<<<\s*(#{block_tag_re})?/
   end
 
   # for identification
   BLOCK_OPEN_RE = /\A<<</
-  BLOCK_END_RE = %r|\A>>>+(?:\s*//.*)?\Z|
+  BLOCK_END_RE = %r|\A>>>(?:\s*//.*)?\Z|
   BLOCK_TERMINATE_RE = /\A#{Regexp.union(BLOCK_OPEN_RE, BLOCK_END_RE)}/
 
   def gbl(str, rest)
@@ -505,7 +501,7 @@ class HikiDoc
     end
   end
 
-  INLINE_OPEN_RE = /\A\(\(\(\s*([a-zA-Z0-9_]+)?/
+  INLINE_OPEN_RE = /\A\s*\(\(\(\s*([a-zA-Z0-9_]+)?/
   INLINE_END_RE = %r|\A\s*\)\)\)\s*(?://.*)?\Z|
   INLINE_TABLE_RE = /\|\|!?\^*>*\s*\(\(\(/
   INLINE_LIST_RE = /[*#:]+\s*\(\(\(/ # ul,ol and dd
@@ -546,7 +542,7 @@ class HikiDoc
 
   def get_inline_body(f)
     line_buffer = []
-    first = lstrip(f.gets)
+    first = f.gets
     m = INLINE_OPEN_RE.match(first) or raise UnexpectedError, "must not happen"
     return first unless m.post_match.empty?
     while line_buffer += f.break(INLINE_TERMINATE_RE) do
@@ -677,15 +673,12 @@ p str if @options[:debug]
   end
 
   BLANK = /\A$/
-  def paragraph_end_re
-    Regexp.union(BLANK,
-                 HEADER_RE, hrule_re, LIST_RE, DLIST_RE,
-                 block_open_re, TABLE_RE)
-  end
-
+  PARAGRAPH_END_RE = Regexp.union(BLANK,
+                                  HEADER_RE, HRULE_RE, LIST_RE, DLIST_RE,
+                                  BLOCK_OPEN_RE, TABLE_RE)
 
   def compile_paragraph(f, preload = nil)
-    lines = f.break(paragraph_end_re)\
+    lines = f.break(PARAGRAPH_END_RE)\
         .reject {|line| COMMENT_RE =~ line }
     lines.unshift(preload) if preload
     if lines.size == 1 and /\A\0(\d+)\0\z/ =~ strip(lines[0])

@@ -193,6 +193,8 @@ class HikiDocTestCase < Test::Unit::TestCase
                    %Q|*(((\nfoo\n)))|)
     assert_convert("<ul>\n<li><p>foo</p>\n<p>bar</p>\n</li>\n</ul>\n",
                    %Q|*(((\nfoo\n\nbar\n)))|)
+    assert_convert("<ul>\n<li>i(((</li>\n</ul>\n<p>foo</p>\n<p>bar\n)))</p>\n",
+                   %Q|*i(((\nfoo\n\nbar\n)))|)
     assert_convert("<p>&lt;&lt;&lt;be\nfoo\n&gt;&gt;&gt;</p>\n",
                    %Q|<<<be\nfoo\n>>>|)
 
@@ -514,7 +516,12 @@ class HikiDocTestCase < Test::Unit::TestCase
     # basic
     assert_convert(%Q|<ul>\n<li class="cls" title="title">foo</li>\n</ul>\n|,
                    %Q|*[ cls , "title" ]foo|)
+    assert_convert(%Q|<ul>\n<li class="cls" title="title">foo</li>\n<li class=\"cls2\" title=\"title2\">bar</li>\n</ul>\n|,
+                   %Q|*[ cls , "title" ]foo\n*[cls2,"title2"] bar|)
+
     # set attributes to ul/li tag
+    assert_convert(%Q|<ul class="ul_cls" title="ul_title">\n<li class="li_cls" title="li_title">foo</li>\n</ul>\n|,
+                   %Q|*[ ul_cls , "ul_title" ]\n*[ li_cls , "li_title" ]foo|)
     assert_convert(%Q|<ul class="ul_cls" title="ul_title">\n<li class="li_cls" title="li_title">foo</li>\n</ul>\n|,
                    %Q|[ ul_cls , "ul_title" ]\n*[ li_cls , "li_title" ]foo|)
 
@@ -1061,7 +1068,8 @@ class HikiDocTestCase < Test::Unit::TestCase
                    "<<< div\nbar\n>>>")
     assert_convert(%Q|<div>\n<p>bar</p>\n</div>\n|,
                    "<<< d\nbar\n>>>")
-
+    assert_convert(%Q|<div>\n<p>&lt;&lt;&lt;&lt;\nbar\n&gt;&gt;&gt;&gt;</p>\n</div>\n|,
+                   "<<<d\n<<<<\nbar\n>>>>\n>>>")
     # breakline
     assert_convert("<div>\n<p>foo<br />\nfuga</p>\n</div>\n",
                    %Q|<<<d\nfoo\n fuga\n>>>|)
@@ -1224,7 +1232,7 @@ class HikiDocTestCase < Test::Unit::TestCase
     # nesting
     ## div
     assert_convert("<blockquote>\n<div>\n<p>foo</p>\n</div>\n</blockquote>\n",
-                   %Q!<<<b\n<<<<d\nfoo\n>>>>\n>>>!)
+                   %Q!<<<b\n<<<d\nfoo\n>>>\n>>>!)
     ## blockquote
     assert_convert("<blockquote>\n<blockquote>\n<p>foo</p>\n</blockquote>\n</blockquote>\n",
                    %Q!<<<b\n<<<b\nfoo\n>>>\n>>>!)
