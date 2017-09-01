@@ -1137,6 +1137,9 @@ class HikiDocTestCase < Test::Unit::TestCase
                    %Q|<<<d\n* foo\n>>>|)
     # list with block
     assert_convert("<div>\n<ul>\n<li><p>foo<br />\nbar</p>\n</li>\n</ul>\n</div>\n",
+                   %Q|<<<d\n*(((\nfoo\n bar\n)))\n>>>|)
+    # list with block(allow blank)
+    assert_convert("<div>\n<ul>\n<li><p>foo<br />\nbar</p>\n</li>\n</ul>\n</div>\n",
                    %Q|<<<d\n* (((\nfoo\n bar\n)))\n>>>|)
     # definition lists
     assert_convert("<div>\n<dl>\n<dt>foo</dt>\n<dd>bar</dd>\n</dl>\n</div>\n",
@@ -1256,6 +1259,9 @@ class HikiDocTestCase < Test::Unit::TestCase
                    %Q|<<<b\n* foo\n>>>|)
     # list with block
     assert_convert("<blockquote>\n<ul>\n<li><p>foo<br />\nbar</p>\n</li>\n</ul>\n</blockquote>\n",
+                   %Q|<<<b\n*(((\nfoo\n bar\n)))\n>>>|)
+    # list with block(allow blank)
+    assert_convert("<blockquote>\n<ul>\n<li><p>foo<br />\nbar</p>\n</li>\n</ul>\n</blockquote>\n",
                    %Q|<<<b\n* (((\nfoo\n bar\n)))\n>>>|)
     # definition lists
     assert_convert("<blockquote>\n<dl>\n<dt>foo</dt>\n<dd>bar</dd>\n</dl>\n</blockquote>\n",
@@ -1371,6 +1377,9 @@ class HikiDocTestCase < Test::Unit::TestCase
     assert_convert(%Q!<div style="text-align:center;">\n<ul>\n<li>foo</li>\n</ul>\n</div>\n!,
                    %Q|<<<c\n* foo\n>>>|)
     # list with block
+    assert_convert(%Q!<div style="text-align:center;">\n<ul>\n<li><p>foo<br />\nbar</p>\n</li>\n</ul>\n</div>\n!,
+                   %Q|<<<c\n*(((\nfoo\n bar\n)))\n>>>|)
+    # list with block(allow blank)
     assert_convert(%Q!<div style="text-align:center;">\n<ul>\n<li><p>foo<br />\nbar</p>\n</li>\n</ul>\n</div>\n!,
                    %Q|<<<c\n* (((\nfoo\n bar\n)))\n>>>|)
     # definition lists
@@ -1576,6 +1585,9 @@ class HikiDocTestCase < Test::Unit::TestCase
     assert_convert(%Q!<pre>* foo</pre>\n!,
                    %Q|<<<p\n* foo\n>>>|)
     # list with block
+    assert_convert(%Q!<pre>*(((\nfoo\n bar\n)))</pre>\n!,
+                   %Q|<<<p\n*(((\nfoo\n bar\n)))\n>>>|)
+    # list with block
     assert_convert(%Q!<pre>* (((\nfoo\n bar\n)))</pre>\n!,
                    %Q|<<<p\n* (((\nfoo\n bar\n)))\n>>>|)
     # definition lists
@@ -1673,6 +1685,8 @@ class HikiDocTestCase < Test::Unit::TestCase
     assert_convert(%Q!<pre>* foo</pre>\n!,
                    %Q|<<<pa\n* foo\n>>>|)
     # list with block
+    assert_convert(%Q!<pre>*(((\nfoo\n bar\n)))</pre>\n!,
+                   %Q|<<<pa\n*(((\nfoo\n bar\n)))\n>>>|)
     assert_convert(%Q!<pre>* (((\nfoo\n bar\n)))</pre>\n!,
                    %Q|<<<pa\n* (((\nfoo\n bar\n)))\n>>>|)
     # definition lists
@@ -1778,6 +1792,8 @@ class HikiDocTestCase < Test::Unit::TestCase
     assert_convert(%Q!<p>* foo</p>\n!,
                    %Q|<<<a\n* foo\n>>>|)
     # list with block
+    assert_convert(%Q!<p>*(((<br />\nfoo<br />\n bar<br />\n)))</p>\n!,
+                   %Q|<<<a\n*(((\nfoo\n bar\n)))\n>>>|)
     assert_convert(%Q!<p>* (((<br />\nfoo<br />\n bar<br />\n)))</p>\n!,
                    %Q|<<<a\n* (((\nfoo\n bar\n)))\n>>>|)
     # definition lists

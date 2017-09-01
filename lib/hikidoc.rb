@@ -229,7 +229,7 @@ class HikiDoc
     buf
   end
 
-  COMMENT_RE = %r<\A//>
+  COMMENT_RE = %r|\A//|
 
   def skip_comments(f)
     f.while_match(COMMENT_RE) do |line|
@@ -265,6 +265,7 @@ class HikiDoc
   def output_listitem(item, f)
     return false if item && item.empty?
     item = get_attr(item)
+ 
     @output.listitem_open
     if item.nil?
       compile_element_block(f)
@@ -315,6 +316,9 @@ class HikiDoc
     @output.list_open list_type_new
     output_listitem item, f
   end
+
+  INLINE_OPEN_RE = /\A\s*\(\(\(\s*([a-zA-Z0-9_]+)?/
+  INLINE_END_RE = %r|\A\s*\)\)\)\s*(?://.*)?\Z|
 
   def compile_list(f)
     typestack = []
@@ -392,8 +396,6 @@ class HikiDoc
     lines.each do |line|
       line = get_attr(line)
       @output.table_record_open
-#      split_columns(line.sub(TABLE_RE, "")).each do |col|
-      # show malformed attributes.
       split_columns(line.sub(/\A\|\|/, "")).each do |col|
         mid = col.sub!(/\A!/, "") ? "table_head" : "table_data"
         span = col.slice!(/\A[\^>]*/)
@@ -416,11 +418,6 @@ class HikiDoc
 
   def split_columns(str)
     str.split(/\|\|/, -1)
-=begin
-    cols = str.split(/\|\|/, -1)
-    cols.pop if cols.last.chomp.empty?
-    cols
-=end
   end
 
   def span_count(str, ch)
@@ -430,22 +427,6 @@ class HikiDoc
 
   SELECTOR_RE = /[a-zA-Z][a-zA-Z0-9_:.-]*/
   SELECTORS_RE = /#{SELECTOR_RE}(?: +#{SELECTOR_RE})*/
-
-  # allow double-quote in title
-#  TITLE_RE = %r|[^\]]*|
-  # disallow double-quote in title
-  # TITLE_RE = %r|[^\"\]]*|
-  #####
-  # id and class
-  #TAG_ATTRIBUTES_RE = "(\\[(?:#{SELECTOR_RE})?(?:,(?:#{SELECTOR_RE})?)?\\])?"
-  # id,class and title
-  #TAG_ATTRIBUTES_RE = %r<(?:\[((?:#{SELECTOR_RE}|"#{TITLE_RE}")?(?:,(?:#{SELECTOR_RE}|"#{TITLE_RE}")?(?:,(?:#{TITLE_RE})?)?)?)\])?>
-  # class and title
-#  TAG_ATTRIBUTES_RE = %r<(?:\[((?:#{SELECTORS_RE}|"#{TITLE_RE}")?(?:,[ \t]*(?:#{TITLE_RE}))?)\])>
-#  TAG_ATTRIBUTES_RE = %r<(?:\[(?:#{SELECTORS_RE}|"#{TITLE_RE}")?(?:,[ \t]*(?:#{TITLE_RE}))?\])>
-#  TAG_ATTRIBUTES_RE = %r<\[(?:#{SELECTORS_RE}|"#{TITLE_RE}"|(?:(?:#{SELECTORS_RE})?,[ \t]*){1,2}(?:"#{TITLE_RE}"|#{TITLE_RE})?)?\]>
-#  TAG_ATTRIBUTES_RE = %r<\[(?:#{SELECTORS_RE}|"#{TITLE_RE}"|(?:#{SELECTORS_RE})?,[ \t]*(?:#{SELECTORS_RE}|"#{TITLE_RE}"|#{TITLE_RE})?|(?:(?:#{SELECTORS_RE})?,[ \t]*){2}(?:"#{TITLE_RE}"|#{TITLE_RE})?)?\]>
-
   TITLE_RE = /".+?"/
   ATTRIBUTES_RE = /#{Regexp.union(SELECTORS_RE,TITLE_RE)}/
 
@@ -456,17 +437,6 @@ class HikiDoc
       %r<#{@attr_prefix} *(?:#{ATTRIBUTES_RE}|(?:#{SELECTORS_RE})? *, *(?:#{TITLE_RE})) *#{@attr_suffix}>
     end
   end
-=begin
-  TITLE_RE = %r|.+?|
-  def tag_attributes_re
-    if @options[:enable_id]
-      %r<\[ *(?:#{SELECTORS_RE}|"#{TITLE_RE}"|(?:#{SELECTORS_RE})? *, *(?:#{SELECTORS_RE}|"#{TITLE_RE}")?|(?:(?:#{SELECTORS_RE})? *, *){2}(?:"#{TITLE_RE}"|#{TITLE_RE})?) *\]>
-    else
-      %r<\[ *(?:#{SELECTORS_RE}|"#{TITLE_RE}"|(?:#{SELECTORS_RE})? *, *(?:"#{TITLE_RE}"|#{TITLE_RE})) *\]>
-    end
-  end
-=end
-
 
   BLOCK_BLOCKQUOTE_RE = /b(?:lockquote)?/
   BLOCK_LEFT_RE = /l(?:eft)?/
@@ -516,7 +486,7 @@ class HikiDoc
     when BLOCK_RIGHT_RE
       "right"
     when nil
-      /\A#{tag_attributes_re}/.match(rest) ? "div" : "none"
+      tag_attributes_re.match(rest) ? "div" : "none"
     else
       nil
     end
@@ -538,6 +508,11 @@ class HikiDoc
       compile_blocks buf.join("")
     end
   end
+
+  INLINE_TABLE_RE = /\|\|!?\^*>*\s*\(\(\(/
+  INLINE_LIST_RE = /[*#:]+\s*\(\(\(/ # ul,ol and dd
+  INLINE_ELEMENT_RE = Regexp.union(INLINE_TABLE_RE, INLINE_LIST_RE)
+  INLINE_TERMINATE_RE = Regexp.union(INLINE_END_RE, INLINE_ELEMENT_RE)
 
   def get_nested_inline(f)
     line_buffer = [f.gets]
@@ -588,17 +563,15 @@ class HikiDoc
     end
   end
 
+  BLOCK_OPEN_RE = /\A<<</
+  BLOCK_END_RE = %r|\A>>>+(?:\s*//.*)?\Z|
+  BLOCK_TERMINATE_RE = /\A#{Regexp.union(BLOCK_OPEN_RE, BLOCK_END_RE)}/
+
   def get_block_body(f)
     line_buffer = []
     line_buffer << f.gets
     m = block_open_re.match(line_buffer[0].chomp) or raise UnexpectedError, "must not happen"
     return line_buffer[0] unless m.post_match.empty? || /\A#{tag_attributes_re}/.match(m.post_match)
-=begin
-    p line_buffer[0] if @options[:debug]
-    ggg = gbl(m[1], m.post_match)
-    p ggg  if @options[:debug]
-    case ggg
-=end
     case gbl(m[1], m.post_match)
     when "pre", "pre_asis", "asis", "math"
       line_buffer += f.break(BLOCK_END_RE)
@@ -625,9 +598,7 @@ class HikiDoc
     lines.pop # leave this for nested backtrack
     m = block_open_re.match(lines.shift.chomp) or raise UnexpectedError, "must not happen"
     label = gbl(m[1], m.post_match)
-p m.post_match if @options[:debug]
     str = get_attr(m.post_match)
-p str if @options[:debug]
     lines.unshift(str) unless str.to_s.empty?
     @output.__send__("#{label}_open", @options)
     case label
@@ -662,7 +633,7 @@ p str if @options[:debug]
       buffer << @output.break_line
       buffer << "\n"
     end
-    @output.preformatted(buffer.sub(%r|#{@output.break_line}\n\z|m, ''))
+    @output.preformatted(buffer.sub(/#{@output.break_line}\n\z/m, ''))
   end
 
   def compile_math_block(lines)
@@ -693,8 +664,8 @@ p str if @options[:debug]
     compile_blocks buf unless buf.empty? || noout
   end
 
-  BLANK = /\A$/
-  PARAGRAPH_END_RE = Regexp.union(BLANK,
+  BLANK_RE = /\A$/
+  PARAGRAPH_END_RE = Regexp.union(BLANK_RE,
                                   HEADER_RE, HRULE_RE, LIST_RE, DLIST_RE,
                                   BLOCK_OPEN_RE, TABLE_RE)
 
@@ -953,9 +924,7 @@ p str if @options[:debug]
       when chunk = m[1]
         mod, t = split_mod(chunk)
         mid = MODTAG[mod]
-p t if @options[:debug]
         t = strip(get_attr(t))
-p t if @options[:debug]
         buf << @output.__send__(mid, mid == "asis" ? t : compile_inline(t), @options)
       else
         raise UnexpectedError, "must not happen #{chunk}, #{m[1]}"
@@ -1060,7 +1029,6 @@ p t if @options[:debug]
         when chunk = m[1]
           mod, t = chunk[0, 2], chunk[2...-2]
           mid = MODTAG[mod]
-#          t = get_attr(t).to_s.strip
           buf << __send__(mid, t)
         else
           raise UnexpectedError, "must not happen #{chunk}, #{m[1]}"
