@@ -482,7 +482,7 @@ class HikiDoc
     when BLOCK_RIGHT_RE
       "right"
     when nil
-      tag_attributes_re.match(rest) ? "div" : "none"
+      /\A#{tag_attributes_re}/.match(rest) ? "div" : "none"
     else
       nil
     end
@@ -671,10 +671,10 @@ class HikiDoc
         line_buffer[-1] << @output.break_line if line_buffer[-1] && line.match(CONTINUE_RE)
         line = lstrip(line)
         if /\A#{tag_attributes_re}/.match(line)
-          line = get_attr(line)
-          line_buffer << @output.span(compile_inline(lstrip(line).chomp)) unless line.chomp.empty?
+          line = get_attr(line).chomp
+          line_buffer << @output.span(compile_inline(line)) unless line.empty?
         else
-          line_buffer << compile_inline(lstrip(line).chomp)
+          line_buffer << compile_inline(lstrip_slash(line).chomp)
         end
       end
       @output.paragraph(line_buffer)
@@ -946,6 +946,10 @@ class HikiDoc
 
   def lstrip(str)
     str.sub(/\A[ \t\r\n\v\f]+/, "")
+  end
+
+  def lstrip_slash(str)
+    str.sub(/\A\\/, '')
   end
 
   module CommonOutput

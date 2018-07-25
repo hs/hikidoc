@@ -8,8 +8,32 @@ class HikiDocTestCase < Test::Unit::TestCase
                    %Q|<s>foo|)
     assert_convert(%Q|<p>&amp;lt;foo</p>\n|,
                    %Q|&lt;foo|)
-    assert_convert(%Q|<p>\\"\\"foo</p>\n|,
+    assert_convert(%Q|<p>"\\"foo</p>\n|,
                    %q|\"\"foo|)
+    assert_convert(%Q|<p>\\foo</p>\n|,
+                   %q|\\\\foo|)
+    assert_convert(%Q|<p>[str]foo</p>\n|,
+                   %q|\\[str]foo|)
+    assert_convert(%Q|<p>! foo</p>\n|,
+                   %q|\\! foo|)
+    assert_convert(%Q|<p>* foo</p>\n|,
+                   %q|\\* foo|)
+    assert_convert(%Q|<p># foo</p>\n|,
+                   %q|\\# foo|)
+    assert_convert(%Q|<p>// コメント</p>\n|,
+                   %q|\\// コメント|)
+    assert_convert(%Q|<p>----</p>\n|,
+                   %q|\\----|)
+    assert_convert(%Q|<p>;foo</p>\n|,
+                   %q|\\;foo|)
+    assert_convert(%Q|<p>:foo</p>\n|,
+                   %q|\\:foo|)
+    assert_convert(%Q(<p>||foo</p>\n),
+                   %q(\\||foo))
+    assert_convert(%Q|<p>{foo}</p>\n|,
+                   %q|\\{foo}|)
+    assert_convert(%Q|<p>&lt;&lt;&lt;d</p>\n|,
+                   %q|\\<<<d|)
   end
 
   def test_attr
@@ -20,11 +44,11 @@ class HikiDocTestCase < Test::Unit::TestCase
                    %Q|[ cls]\nfoo|)
     assert_convert(%Q|<p class="cls">foo</p>\n|,
                    %Q|[cls ]\nfoo|)
-#    assert_convert(%Q|<p class="cls">foo</p>\n|,
-#                   %Q| [cls]\nfoo|)
+    assert_convert(%Q|<p class="cls">foo</p>\n|,
+                   %Q| [cls]\nfoo|)
     # valid chars in class
-    assert_convert(%Q|<p class="c-l:s.1">foo</p>\n|,
-                   "[c-l:s.1]\nfoo")
+    assert_convert(%Q|<p class="c-l:s.1_0">foo</p>\n|,
+                   "[c-l:s.1_0]\nfoo")
     # multi class
     assert_convert(%Q|<p class="cls1 cls2">foo</p>\n|,
                    "[cls1 cls2]\nfoo")
@@ -257,6 +281,8 @@ class HikiDocTestCase < Test::Unit::TestCase
                    %Q|<<<\nfoo\n>>>a|)
     assert_convert(%Q|<div class="foo">\n<p>&gt;&gt;&gt;a</p>\n</div>\n|,
                    %Q|<<<[foo]\n\n>>>a\n>>>|)
+    assert_convert(%Q|<p>&lt;&lt;&lt;\\[foo,\"bar,baz\"]\ntext\n&gt;&gt;&gt;</p>\n|,
+                   %Q|<<<\\[foo,"bar,baz"]\ntext\n>>>|)
   end
 
   def test_paragraph
@@ -1224,6 +1250,8 @@ class HikiDocTestCase < Test::Unit::TestCase
                    %Q!<<<[ cls , "title" ]\nbar\n>>>!)
 
     # not attribute
+    assert_convert(%Q|<p>&lt;&lt;&lt;div\\[foo,\"bar,baz\"]\ntext\n&gt;&gt;&gt;</p>\n|,
+                   %Q|<<<div\\[foo,"bar,baz"]\ntext\n>>>|)
     assert_convert(%Q|<p>&lt;&lt;&lt;div [ cls , \"title\" ]\nbar\n&gt;&gt;&gt;</p>\n|,
                    %Q!<<<div [ cls , "title" ]\nbar\n>>>!)
   end
@@ -1903,7 +1931,7 @@ class HikiDocTestCase < Test::Unit::TestCase
                    "{{foo}}")
     assert_convert("<p>a<span class=\"plugin\">{{foo}}</span>b</p>\n",
                    "a{{foo}}b")
-    assert_convert("<p>\\<span class=\"plugin\">{{foo}}</span></p>\n",
+    assert_convert("<p><span class=\"plugin\">{{foo}}</span></p>\n",
                    "\\{{foo}}")
     assert_convert("<p>a{{foo</p>\n",
                    "a{{foo")
