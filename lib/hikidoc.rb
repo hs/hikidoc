@@ -64,24 +64,24 @@ class HikiDoc
 	attr_prefix = options[:attr_prefix].to_s.length == 1 ? options[:attr_prefix] : '['
     case attr_prefix
     when '('
-	  @attr_prefix = '\('
-	  @attr_suffix = '\)'
+      @attr_prefix = '\('
+      @attr_suffix = '\)'
     when '|'
-	  @attr_prefix = '\|'
-	  @attr_suffix = '\|'
+      @attr_prefix = '\|'
+      @attr_suffix = '\|'
     when '<'
-	  @attr_prefix = '<'
-	  @attr_suffix = '>'
+      @attr_prefix = '<'
+      @attr_suffix = '>'
     when "'"
-	  @attr_prefix = "'"
-	  @attr_suffix = "'"
+      @attr_prefix = "'"
+      @attr_suffix = "'"
     when '`'
-	  @attr_prefix = "`"
-	  @attr_suffix = "'"
+      @attr_prefix = "`"
+      @attr_suffix = "'"
     else
-	  @attr_prefix = '\['
-	  @attr_suffix = '\]'
-	end
+      @attr_prefix = '\['
+      @attr_suffix = '\]'
+    end
   end
 
   def compile(src)
@@ -507,7 +507,7 @@ class HikiDoc
   def get_nested_inline(f)
     line_buffer = [f.gets]
     cnt = line_buffer.first.scan(INLINE_ELEMENT_RE).length
-    m = INLINE_ELEMENT_RE.match(line_buffer.first) or return line_buffer.first
+    INLINE_ELEMENT_RE.match(line_buffer.first) or return line_buffer.first
     cnt.times do
       while line_buffer += f.break(INLINE_TERMINATE_RE) do
         line_buffer << get_nested_inline(f) if INLINE_ELEMENT_RE.match(f.peek)
@@ -535,7 +535,7 @@ class HikiDoc
       line_buffer << get_nested_inline(f) if INLINE_ELEMENT_RE.match(f.peek)
       break if INLINE_END_RE.match(f.peek) || f.eof?
     end
-    unless INLINE_END_RE.match(last = f.gets)
+    unless INLINE_END_RE.match(f.gets)
       line_buffer.flatten.reverse_each do |line|
         f.ungets(line)
       end
