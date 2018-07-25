@@ -370,14 +370,24 @@ class HikiDoc
 
       if INLINE_OPEN_RE.match(dd)
         f.ungets(dd)
-        @output.dlist_item compile_inline(dt), '' unless dt.nil? || dt.empty?
+        @output.dlist_item compile_inline(dt), '', '', '' unless dt.nil? || dt.empty?
         @output.dd_open
         compile_element_block(f)
         @output.dd_close
       else
-        dd = get_attr(dd).lstrip if dd
-        dt = get_attr(dt).lstrip if dt
-        @output.dlist_item compile_inline(dt), compile_inline(dd)
+        dd_attr, dd_compiled = '', ''
+        if dd
+          dd = get_attr(dd).lstrip
+          dd_attr, dd_compiled = @output.attr, compile_inline(lstrip_slash(dd))
+        end
+
+        dt_attr, dt_compiled = '', ''
+        if dt
+          dt = get_attr(dt).lstrip
+          dt_attr, dt_compiled = @output.attr, compile_inline(lstrip_slash(dt))
+        end
+
+        @output.dlist_item dt_compiled, dt_attr, dd_compiled, dd_attr
       end
       skip_comments f
     end
@@ -663,6 +673,7 @@ class HikiDoc
     lines = f.break(PARAGRAPH_END_RE)\
         .reject {|line| COMMENT_RE =~ line }
     lines.unshift(preload) if preload
+
     if lines.size == 1 and /\A\0(\d+)\0\z/ =~ strip(lines[0])
       @output.block_plugin plugin_block($1.to_i)
     else
@@ -1101,15 +1112,15 @@ class HikiDoc
       @f.puts "</dl>"
     end
 
-    def dlist_item(dt, dd)
+    def dlist_item(dt, dt_attr,  dd, dd_attr)
       case
       when dd.empty?
-        @f.puts "<dt#{attr}>#{dt}</dt>"
+        @f.puts "<dt#{dt_attr}>#{dt}</dt>"
       when dt.empty?
-        @f.puts "<dd#{attr}>#{dd}</dd>"
+        @f.puts "<dd#{dd_attr}>#{dd}</dd>"
       else
-        @f.puts "<dt#{attr}>#{dt}</dt>"
-        @f.puts "<dd#{attr}>#{dd}</dd>"
+        @f.puts "<dt#{dt_attr}>#{dt}</dt>"
+        @f.puts "<dd#{dd_attr}>#{dd}</dd>"
       end
     end
 

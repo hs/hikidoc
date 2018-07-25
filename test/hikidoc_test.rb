@@ -724,6 +724,32 @@ class HikiDocTestCase < Test::Unit::TestCase
                    %Q|[ dl_id , dl_cls , "dl_title" ]\n;[ dt_id , dt_cls , "dt_title" ]a;:[ dd_id , dd_cls, "dd_title" ]b|,
                    { :enable_id => true })
 
+    # normal
+    assert_convert(%Q|<dl class="dl_cls" title="dl_title">\n| +
+                   %Q|<dt class="dt_cls" title="dt_title">a</dt>\n| +
+                   %Q|<dd>b</dd>\n| +
+                   %Q|</dl>\n|,
+                   %Q|[ dl_cls , "dl_title" ]\n;[ dt_cls , "dt_title" ]a\n:b|)
+    # one liner
+    assert_convert(%Q|<dl class="dl_cls" title="dl_title">\n| +
+                   %Q|<dt class="dt_cls" title="dt_title">a</dt>\n| +
+                   %Q|<dd>b</dd>\n| +
+                   %Q|</dl>\n|,
+                   %Q|[ dl_cls , "dl_title" ]\n;[ dt_cls , "dt_title" ]a;:b|)
+
+    # normal
+    assert_convert(%Q|<dl class="dl_cls" title="dl_title">\n| +
+                   %Q|<dt>a</dt>\n| +
+                   %Q|<dd class="dd_cls" title="dd_title">b</dd>\n| +
+                   %Q|</dl>\n|,
+                   %Q|[ dl_cls , "dl_title" ]\n;a\n:[ dd_cls, "dd_title" ]b|)
+    # one liner
+    assert_convert(%Q|<dl class="dl_cls" title="dl_title">\n| +
+                   %Q|<dt>a</dt>\n| +
+                   %Q|<dd class="dd_cls" title="dd_title">b</dd>\n| +
+                   %Q|</dl>\n|,
+                   %Q|[ dl_cls , "dl_title" ]\n;a;:[ dd_cls, "dd_title" ]b|)
+
     # not attribute
     assert_convert(%Q|<dl>\n| +
                    %Q|<dt>[ dt_cls , "dt_title" ]a</dt>\n| +
