@@ -457,14 +457,10 @@ class HikiDoc
   end
 
   def block_open_re
-    /\A<<<\s*(#{block_tag_re})?/
+    /#{BLOCK_OPEN_RE}\s*(#{block_tag_re})?/
   end
 
   # for identification
-  BLOCK_OPEN_RE = /\A<<</
-  BLOCK_END_RE = %r|\A>>>(?:\s*//.*)?\Z|
-  BLOCK_TERMINATE_RE = /\A#{Regexp.union(BLOCK_OPEN_RE, BLOCK_END_RE)}/
-
   def gbl(str, rest)
     case str
     when BLOCK_DIV_RE
@@ -492,12 +488,6 @@ class HikiDoc
     end
   end
 
-  INLINE_OPEN_RE = /\A\s*\(\(\(\s*([a-zA-Z0-9_]+)?/
-  INLINE_END_RE = %r|\A\s*\)\)\)\s*(?://.*)?\Z|
-  INLINE_TABLE_RE = /\|\|!?\^*>*\s*\(\(\(/
-  INLINE_LIST_RE = /[*#:]+\s*\(\(\(/ # ul,ol and dd
-  INLINE_ELEMENT_RE = Regexp.union(INLINE_TABLE_RE, INLINE_LIST_RE)
-  INLINE_TERMINATE_RE = Regexp.union(INLINE_END_RE, INLINE_ELEMENT_RE)
 
   def compile_element_block(f)
     buf = get_inline_body(f)
@@ -564,7 +554,7 @@ class HikiDoc
   end
 
   BLOCK_OPEN_RE = /\A<<</
-  BLOCK_END_RE = %r|\A>>>+(?:\s*//.*)?\Z|
+  BLOCK_END_RE = %r|\A>>>(?:\s*//.*)?\Z|
   BLOCK_TERMINATE_RE = /\A#{Regexp.union(BLOCK_OPEN_RE, BLOCK_END_RE)}/
 
   def get_block_body(f)
